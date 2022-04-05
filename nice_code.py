@@ -92,7 +92,7 @@ with open("output.fa", "r") as fasta_msa:
 
 ## print(msa_dict)
 
-
+## creating the b_factor dictionary
 b_factor_dict = {}
 
 for id, seq in msa_dict.items():
@@ -106,8 +106,18 @@ for id, seq in msa_dict.items():
                     if seq[aln_counter] == seq2[aln_counter]:
                         aa = seq2[aln_counter]
                         bf_pdb = pdb_data[id2][pdb_loc][aa]
-                        b_factor_dict.setdefault(aln_counter, []).append(bf_pdb)
+                        b_factor_dict.setdefault(aln_counter, {}).setdefault(aa, []).append(bf_pdb)
                         pdb_loc = pdb_loc + 1
                     aln_counter += 1
 
-print(b_factor_dict)
+## print(b_factor_dict)
+i = 1
+while (i < len(query_seq)):
+    if i in b_factor_dict.keys():
+        for aa, list in b_factor_dict[i].items():
+            b_factor_dict[i][aa] = round(sum(list) / len(list), 2)
+    #else:
+        #setdefault()
+    i += 1
+
+## print(b_factor_dict)
