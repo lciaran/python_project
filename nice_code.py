@@ -16,6 +16,7 @@ import numpy as np
 import math
 from Bio.PDB.Polypeptide import three_to_one
 from Bio.PDB.Polypeptide import Polypeptide
+import flexcalc
 
 
 def uniprot_to_pdb(query_ID):
@@ -148,15 +149,18 @@ def b_factor_dictionary(aln_dict, PDB_dict, query):
                             pdb_loc = pdb_loc + 1
                         aln_counter += 1
     ## calculating the means for each position
-    i = 1
-    while (i < len(query[1])):
-        if i in b_factor_dict.keys():
-            for aa, list in b_factor_dict[i].items():
-                b_factor_dict[i][aa] = round(sum(list) / len(list), 2)
-    #else:
-        #setdefault()
-        i += 1
-    return(b_factor_dict)
+    with open ("predicted_bfactors.txt", "w") as file:
+        i = 1
+        file.write(str("Position"+"\t"+"Aminoacid"+"\t"+"B-factor"+"\n"))
+        while (i < len(query[1])):
+            if i in b_factor_dict.keys():
+                for aa, list in b_factor_dict[i].items():
+                    b_factor= round(sum(list) / len(list), 2)
+                    file.write(str(str(i)+"\t"+aa+"\t"+str(b_factor)+"\n"))
+            else:
+                b_factor = flexcalc.flexcalc(query[1], i-1)
+                file.write(str(str(i)+"\t"+query[1][i-1]+"\t"+str(b_factor)+"\n"))
+            i += 1
 
-bf_dict = b_factor_dictionary(dic_msa, dic_pdb_data, query)
+b_factor_dictionary(dic_msa, dic_pdb_data, query)
 ##print(bf_dict)
