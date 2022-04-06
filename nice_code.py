@@ -26,7 +26,7 @@ def uniprot_to_pdb(query_ID):
     url_link = 'https://www.uniprot.org/uniprot/' + query_ID + '.fasta'
     wget.download(url_link)
 
-uniprot_to_pdb("P06401")
+uniprot_to_pdb("P65206")
 
 def query_info_from_fasta(fasta_file):
  """ Function that returns the query information, ID and sequence,
@@ -35,7 +35,7 @@ def query_info_from_fasta(fasta_file):
      for record in SeqIO.parse(handle, "fasta"):
          return (record.id, str(record.seq))
 
-query = query_info_from_fasta("P06401.fasta")
+query = query_info_from_fasta("P65206.fasta")
 ##print (query)
 
 
@@ -56,7 +56,7 @@ def top_10_blast_idlist(fasta_file):
                     list_IDs.append(ID)
     return (list_IDs)
 
-list = top_10_blast_idlist("P06401.fasta")
+list = top_10_blast_idlist("P65206.fasta")
 ##print (list)
 
 def homologous_PDB(list_hom, query):
@@ -114,7 +114,7 @@ def pdb_bfactor_info(list_hom):
     return(pdb_data)
 
 dic_pdb_data= pdb_bfactor_info(list)
-##print (dic_pdb_data)
+#print (dic_pdb_data)
 
 def pdb_bfactor_info_normalized(pdb_data_dict):
     """Function that normalises the b-factors of the PDB and returns the
