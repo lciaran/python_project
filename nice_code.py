@@ -19,6 +19,7 @@ from Bio.PDB.Polypeptide import Polypeptide
 import flexcalc
 from statistics import mean, stdev
 import dictionaries
+import re
 
 
 def uniprot_to_pdb(query_ID):
@@ -26,7 +27,7 @@ def uniprot_to_pdb(query_ID):
     url_link = 'https://www.uniprot.org/uniprot/' + query_ID + '.fasta'
     wget.download(url_link)
 
-uniprot_to_pdb("P65206")
+uniprot_to_pdb("Q9P7Q4")
 
 def query_info_from_fasta(fasta_file):
  """ Function that returns the query information, ID and sequence,
@@ -35,48 +36,79 @@ def query_info_from_fasta(fasta_file):
      for record in SeqIO.parse(handle, "fasta"):
          return (record.id, str(record.seq))
 
-query = query_info_from_fasta("P65206.fasta")
-##print (query)
+query = query_info_from_fasta("Q9P7Q4.fasta")
+print (query)
 
 
 def top_10_blast_idlist(fasta_file):
     """Function that performs the Blast and returns a list of the IDs from the
     top 10 results of the Blast"""
     ## performing the Blast
-    cline = NcbiblastpCommandline(query=fasta_file, db="DB/PDB_db", evalue=0.00001, out= "blast_results.out", outfmt = "6 sseqid evalue")
+    cline = NcbiblastpCommandline(query=fasta_file, db="DB/Uniprot/uniprot_sprot.fasta", evalue=0.00001, out= "blast_results.out", outfmt = "6 sseqid evalue")
     stdt, stdr= cline()
 
     ## getting the 10 best porteins IDs
     with open ("blast_results.out", "r") as file:
         list_IDs = []
         for line in file:
-            ID = line[4:8]
+            ID = line[3:9]
             if len(list_IDs) < 5:
                 if ID not in list_IDs:
                     list_IDs.append(ID)
     return (list_IDs)
 
-list = top_10_blast_idlist("P65206.fasta")
-##print (list)
+list = top_10_blast_idlist("Q9P7Q4.fasta")
+#print (list)
+
+# def homologous_PDB(list_hom, query):
+#     """Function that obtains the PDB files of the list of top 10 homologous proteins,
+#     extracts the sequence and introduces them into the alignment file as well
+#     as the query (query has to be a tupple (id,seq))"""
+#     with open ("aln_input.fa", "w") as file:
+#         file.write(str(">" + query[0] + "\n" + query[1] +"\n"))
+#         for Id in list_hom:
+#             url_pdb = 'https://files.rcsb.org/view/' + Id + '.pdb'
+#             wget.download(url_pdb)
+#             PDB_file_path = Id + '.pdb'
+#             query_seqres = SeqIO.parse(PDB_file_path, 'pdb-atom')
+#             query_chain_id = Id.upper() + ':A'
+#             for chain in query_seqres:
+#                 if chain.id == query_chain_id:
+#                     query_chain = chain.seq
+#                     file.write(str(">" + Id + "\n" + query_chain + "\n"))
+#
+# homologous_PDB(list, query)
 
 def homologous_PDB(list_hom, query):
     """Function that obtains the PDB files of the list of top 10 homologous proteins,
     extracts the sequence and introduces them into the alignment file as well
     as the query (query has to be a tupple (id,seq))"""
+    pdb_data = {}
     with open ("aln_input.fa", "w") as file:
         file.write(str(">" + query[0] + "\n" + query[1] +"\n"))
         for Id in list_hom:
-            url_pdb = 'https://files.rcsb.org/view/' + Id + '.pdb'
+            url_pdb = "https://alphafold.ebi.ac.uk/files/AF-" + Id + "-F1-model_v2.pdb"
             wget.download(url_pdb)
-            PDB_file_path = Id + '.pdb'
-            query_seqres = SeqIO.parse(PDB_file_path, 'pdb-atom')
-            query_chain_id = Id.upper() + ':A'
-            for chain in query_seqres:
-                if chain.id == query_chain_id:
-                    query_chain = chain.seq
-                    file.write(str(">" + Id + "\n" + query_chain + "\n"))
+            PDB_file_path = "AF-" + Id + "-F1-model_v2.pdb"
+            sequence = ''
+            with open (PDB_file_path, "r") as pdb_file:
+                for line in pdb_file:
+                    if line.startswith("ATOM"):
+                        chain = line[21]
+                        residue = line[17:20]
+                        atom = line[13:16]
+                        location = int(line[23:26])
+                        bfactor = float(line[61:66])
+                        if 'A' in chain:
+                            if 'CA' in atom:
+                                residue = three_to_one(residue)
+                                sequence = sequence + residue
+                                pdb_data.setdefault(Id, {}).setdefault(location, {}).setdefault(residue, bfactor)
+            file.write(str(">" + Id + "\n" + sequence + "\n"))
+    return pdb_data
 
-homologous_PDB(list, query)
+dic_pdb_data=homologous_PDB(list, query)
+print(dic_pdb_data)
 
 def clustalw(aln_file = "aln_input.fa"):
     """Function that performs the ClustalW alignment and converts it to fasta
@@ -90,31 +122,33 @@ def clustalw(aln_file = "aln_input.fa"):
 
 clustalw()
 
-def pdb_bfactor_info(list_hom):
-    """ Function that returns a dictionary of all the b-factors stored in the
-    PDBs of the top proteins from the list of the blast results"""
-
-    pdb_data = {}
-
-    for Id in list_hom:
-        location = 0
-        with open(Id + '.pdb') as input_pdb:
-            for line in input_pdb:
-                if line.startswith("ATOM"):
-                    chain = line[21]
-                    residue = line[17:20]
-                    atom = line[13:16]
-                    bfactor = float(line[61:66])
-                    if 'A' in chain:
-                        if 'CA' in atom:
-                            if line[16] != "B":
-                                location += 1
-                                residue = three_to_one(residue)
-                                pdb_data.setdefault(Id, {}).setdefault(location, {}).setdefault(residue, bfactor)
-    return(pdb_data)
-
-dic_pdb_data= pdb_bfactor_info(list)
-#print (dic_pdb_data)
+# def pdb_bfactor_info(list_hom):
+#     """ Function that returns a dictionary of all the b-factors stored in the
+#     PDBs of the top proteins from the list of the blast results"""
+#
+#     pdb_data = {}
+#
+#     for Id in list_hom:
+#         location = 0
+#         sequence = []
+#         with open(Id + '.pdb') as input_pdb:
+#             for line in input_pdb:
+#                 if line.startswith("ATOM"):
+#                     chain = line[21]
+#                     residue = line[17:20]
+#                     atom = line[13:16]
+#                     bfactor = float(line[61:66])
+#                     if 'A' in chain:
+#                         if 'CA' in atom:
+#                             if line[16] != "B":
+#                                 location += 1
+#                                 residue = three_to_one(residue)
+#                                 sequence.append(residue)
+#                                 pdb_data.setdefault(Id, {}).setdefault(location, {}).setdefault(residue, bfactor)
+#     return(pdb_data)
+#
+# dic_pdb_data= pdb_bfactor_info(list)
+# #print (dic_pdb_data)
 
 def pdb_bfactor_info_normalized(pdb_data_dict):
     """Function that normalises the b-factors of the PDB and returns the
@@ -147,7 +181,7 @@ def alignment_to_dict(alignment_fasta = "aln_output.fa"):
     return (msa_dict)
 
 dic_msa = alignment_to_dict()
-##print (dic_msa)
+#print (dic_msa)
 
 def b_factor_dictionary(aln_dict, PDB_dict, query):
     """Function that returns the B-factor dictionary taking into account the
@@ -163,11 +197,15 @@ def b_factor_dictionary(aln_dict, PDB_dict, query):
                 if id2 != id :
                     for aa in pos2:
                         if pos[aln_counter] == pos2[aln_counter]:
-                            aminoacid = pos2[aln_counter]
-                            bf_pdb = PDB_dict[id2][pdb_loc][aminoacid]
-                            b_factor_dict.setdefault(aln_counter, {}).setdefault(aminoacid, []).append(bf_pdb)
+                            if pos[aln_counter] != "-":
+                                aminoacid = pos2[aln_counter]
+                                bf_pdb = PDB_dict[id2][pdb_loc][aminoacid]
+                                b_factor_dict.setdefault(aln_counter, {}).setdefault(aminoacid, []).append(bf_pdb)
+                                pdb_loc = pdb_loc + 1
+                        elif re.search("[A-Z]", pos2[aln_counter]):
                             pdb_loc = pdb_loc + 1
                         aln_counter += 1
+    # print(b_factor_dict)
     ## calculating the means for each position
     with open ("predicted_bfactors.txt", "w") as file:
         i = 1
@@ -189,4 +227,3 @@ def b_factor_dictionary(aln_dict, PDB_dict, query):
             i += 1
 
 b_factor_dictionary(dic_msa, dic_pdb_data, query)
-##print(bf_dict)
