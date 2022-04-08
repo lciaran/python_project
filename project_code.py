@@ -2,6 +2,7 @@ import sys
 import argparse
 import os
 from nice_code import *
+from graphical_representations import *
 
 if __name__ == "__main__":
 
@@ -19,6 +20,12 @@ if __name__ == "__main__":
 				default= "./predicted_bfactors.txt",
 				help="Ouput file. If not defined, the file will be named 'predicted_bfactors.txt'.")
 
+    parser.add_argument(	'-f', '--figure',
+				dest="outfigure",
+				action="store",
+				default= "./flexibility_plots.png",
+				help="Flexibility plots file. If not defined, the file will be named 'flexibility_plots.png'.")
+
     parser.add_argument(	'-v', '--verbose',
 				dest="verbose",
 				action="store_true",
@@ -28,10 +35,9 @@ if __name__ == "__main__":
     options = parser.parse_args()
 
 
-	# CAPTURING THE INPUT FILE(s)
+	# CAPTURING THE INPUT
     input_fasta = options.infile
 
-    #input_ID = options.uniprotID
     if len(sys.argv) == 1:
         sys.stderr.write("No input provided. Please, try again. \n")
         exit()
@@ -68,7 +74,13 @@ if __name__ == "__main__":
 
     #OBTAINING B-FACTORS OF EACH AMINOACID OF THE QUERY SEQUENCE AND STORING IT INTO THE OUTPUT FILE
     outfile_file = options.outfile
+
     b_factor_dictionary(dic_msa, dic_pdb_data, query, outfile_file)
 
     if options.verbose:
 	    sys.stderr.write("Program finished. Results stored in %s \n" %outfile_file)
+
+    #OBTAINING THE RESULTS PLOT
+    figure = options.outfigure
+
+    flexibility_plots(outfile_file, figure)
