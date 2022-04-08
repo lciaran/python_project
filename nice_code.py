@@ -15,19 +15,17 @@ from Bio import AlignIO
 import numpy as np
 import math
 from Bio.PDB.Polypeptide import three_to_one
-from Bio.PDB.Polypeptide import Polypeptide
 import flexcalc
 from statistics import mean, stdev
 import dictionaries
 import re
-
 
 def uniprot_to_pdb(query_ID):
     """ Funtion that obtains the fasta file from Uniprot using the Uniprot ID"""
     url_link = 'https://www.uniprot.org/uniprot/' + query_ID + '.fasta'
     wget.download(url_link)
 
-uniprot_to_pdb("Q9P7Q4")
+uniprot_to_pdb("P06401")
 
 def query_info_from_fasta(fasta_file):
  """ Function that returns the query information, ID and sequence,
@@ -36,7 +34,7 @@ def query_info_from_fasta(fasta_file):
      for record in SeqIO.parse(handle, "fasta"):
          return (record.id, str(record.seq))
 
-query = query_info_from_fasta("Q9P7Q4.fasta")
+query = query_info_from_fasta("P06401.fasta")
 print (query)
 
 
@@ -44,7 +42,7 @@ def top_10_blast_idlist(fasta_file):
     """Function that performs the Blast and returns a list of the IDs from the
     top 10 results of the Blast"""
     ## performing the Blast
-    cline = NcbiblastpCommandline(query=fasta_file, db="DB/Uniprot/uniprot_sprot.fasta", evalue=0.00001, out= "blast_results.out", outfmt = "6 sseqid evalue")
+    cline = NcbiblastpCommandline(query=fasta_file, db="DB_uniprot/uniprot_sprot.fasta", evalue=0.00001, out= "blast_results.out", outfmt = "6 sseqid evalue")
     stdt, stdr= cline()
 
     ## getting the 10 best porteins IDs
@@ -57,7 +55,7 @@ def top_10_blast_idlist(fasta_file):
                     list_IDs.append(ID)
     return (list_IDs)
 
-list = top_10_blast_idlist("Q9P7Q4.fasta")
+list = top_10_blast_idlist("P06401.fasta")
 #print (list)
 
 # def homologous_PDB(list_hom, query):
@@ -87,24 +85,30 @@ def homologous_PDB(list_hom, query):
     with open ("aln_input.fa", "w") as file:
         file.write(str(">" + query[0] + "\n" + query[1] +"\n"))
         for Id in list_hom:
-            url_pdb = "https://alphafold.ebi.ac.uk/files/AF-" + Id + "-F1-model_v2.pdb"
-            wget.download(url_pdb)
+            try:
+                url_pdb = "https://alphafold.ebi.ac.uk/files/AF-" + Id + "-F1-model_v2.pdb"
+                wget.download(url_pdb)
+            except:
+                continue
             PDB_file_path = "AF-" + Id + "-F1-model_v2.pdb"
             sequence = ''
-            with open (PDB_file_path, "r") as pdb_file:
-                for line in pdb_file:
-                    if line.startswith("ATOM"):
-                        chain = line[21]
-                        residue = line[17:20]
-                        atom = line[13:16]
-                        location = int(line[23:26])
-                        bfactor = float(line[61:66])
-                        if 'A' in chain:
-                            if 'CA' in atom:
-                                residue = three_to_one(residue)
-                                sequence = sequence + residue
-                                pdb_data.setdefault(Id, {}).setdefault(location, {}).setdefault(residue, bfactor)
-            file.write(str(">" + Id + "\n" + sequence + "\n"))
+            try:
+                with open (PDB_file_path, "r") as pdb_file:
+                    for line in pdb_file:
+                        if line.startswith("ATOM"):
+                            chain = line[21]
+                            residue = line[17:20]
+                            atom = line[13:16]
+                            location = int(line[23:26])
+                            bfactor = float(line[61:66])
+                            if 'A' in chain:
+                                if 'CA' in atom:
+                                    residue = three_to_one(residue)
+                                    sequence = sequence + residue
+                                    pdb_data.setdefault(Id, {}).setdefault(location, {}).setdefault(residue, bfactor)
+                file.write(str(">" + Id + "\n" + sequence + "\n"))
+            except ValueError:
+                pass
     return pdb_data
 
 dic_pdb_data=homologous_PDB(list, query)
@@ -162,7 +166,11 @@ def pdb_bfactor_info_normalized(pdb_data_dict):
         std = stdev(list_bfactors)
         for pos in pdb_data_dict[id]:
             for aa, bfactor in pdb_data_dict[id][pos].items():
-                pdb_data_dict[id][pos][aa] = abs((bfactor - mn) / std)
+                try:
+                    pdb_data_dict[id][pos][aa] = abs((bfactor - mn) / std)
+                except ZeroDivisionError:
+                    std = 1
+                    pdb_data_dict[id][pos][aa] = abs((bfactor - mn) / std)
     return (pdb_data_dict)
 
 dic_pdb_data = pdb_bfactor_info_normalized(dic_pdb_data)
@@ -208,7 +216,7 @@ def b_factor_dictionary(aln_dict, PDB_dict, query):
     # print(b_factor_dict)
     ## calculating the means for each position
     with open ("predicted_bfactors.txt", "w") as file:
-        i = 1
+        i = 0
         file.write(str("Position"+"\t"+"Aminoacid"+"\t"+"B-factor"+"\t"+"Type"+"\n"))
         while (i < len(query[1])):
             if i in b_factor_dict:
@@ -219,11 +227,11 @@ def b_factor_dictionary(aln_dict, PDB_dict, query):
                     else:
                         file.write(str(str(i)+"\t"+aa+"\t"+str(b_factor)+"\t"+"F"+"\n"))
             else:
-                b_factor = flexcalc.flexcalc(query[1], i-1)
+                b_factor = flexcalc.flexcalc(query[1], i)
                 if query[1][i-1] in dictionaries.rigid:
-                    file.write(str(str(i)+"\t"+query[1][i-1]+"\t"+str(b_factor)+"\t"+"R"+"\n"))
+                    file.write(str(str(i)+"\t"+query[1][i]+"\t"+str(b_factor)+"\t"+"R"+"\n"))
                 else:
-                    file.write(str(str(i)+"\t"+query[1][i-1]+"\t"+str(b_factor)+"\t"+"F"+"\n"))
+                    file.write(str(str(i)+"\t"+query[1][i]+"\t"+str(b_factor)+"\t"+"F"+"\n"))
             i += 1
 
 b_factor_dictionary(dic_msa, dic_pdb_data, query)
