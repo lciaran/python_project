@@ -1,19 +1,9 @@
 import wget
 from Bio import SeqIO
-from sys import argv
+import sys
 from Bio.Blast.Applications import NcbiblastpCommandline
-from io import StringIO
-from Bio.Blast import NCBIXML
-from Bio.Seq import Seq
-from Bio.SeqRecord import SeqRecord
-from Bio import SeqIO
-from Bio.PDB.PDBParser import PDBParser
-from Bio.PDB.Polypeptide import PPBuilder
 from Bio.Align.Applications import ClustalwCommandline
-from Bio.Align import MultipleSeqAlignment
 from Bio import AlignIO
-import numpy as np
-import math
 from Bio.PDB.Polypeptide import three_to_one
 import flexcalc
 from statistics import mean, stdev
@@ -22,10 +12,12 @@ import re
 
 def uniprot_to_pdb(query_ID):
     """ Funtion that obtains the fasta file from Uniprot using the Uniprot ID"""
-    url_link = 'https://www.uniprot.org/uniprot/' + query_ID + '.fasta'
-    wget.download(url_link)
-
-uniprot_to_pdb("P06401")
+    try:
+        url_link = 'https://www.uniprot.org/uniprot/' + query_ID + '.fasta'
+        wget.download(url_link)
+    except:
+        sys.stderr.write("Please enter a valid Uniprot ID")
+        exit()
 
 def query_info_from_fasta(fasta_file):
  """ Function that returns the query information, ID and sequence,
@@ -34,15 +26,11 @@ def query_info_from_fasta(fasta_file):
      for record in SeqIO.parse(handle, "fasta"):
          return (record.id, str(record.seq))
 
-query = query_info_from_fasta("P06401.fasta")
-print (query)
-
-
 def top_10_blast_idlist(fasta_file):
     """Function that performs the Blast and returns a list of the IDs from the
     top 10 results of the Blast"""
     ## performing the Blast
-    cline = NcbiblastpCommandline(query=fasta_file, db="DB_uniprot/uniprot_sprot.fasta", evalue=0.00001, out= "blast_results.out", outfmt = "6 sseqid evalue")
+    cline = NcbiblastpCommandline(query=fasta_file, db="DB/Uniprot/uniprot_sprot.fasta", evalue=0.00001, out= "blast_results.out", outfmt = "6 sseqid evalue")
     stdt, stdr= cline()
 
     ## getting the 10 best porteins IDs
@@ -50,32 +38,10 @@ def top_10_blast_idlist(fasta_file):
         list_IDs = []
         for line in file:
             ID = line[3:9]
-            if len(list_IDs) < 5:
+            if len(list_IDs) < 10:
                 if ID not in list_IDs:
                     list_IDs.append(ID)
     return (list_IDs)
-
-list = top_10_blast_idlist("P06401.fasta")
-#print (list)
-
-# def homologous_PDB(list_hom, query):
-#     """Function that obtains the PDB files of the list of top 10 homologous proteins,
-#     extracts the sequence and introduces them into the alignment file as well
-#     as the query (query has to be a tupple (id,seq))"""
-#     with open ("aln_input.fa", "w") as file:
-#         file.write(str(">" + query[0] + "\n" + query[1] +"\n"))
-#         for Id in list_hom:
-#             url_pdb = 'https://files.rcsb.org/view/' + Id + '.pdb'
-#             wget.download(url_pdb)
-#             PDB_file_path = Id + '.pdb'
-#             query_seqres = SeqIO.parse(PDB_file_path, 'pdb-atom')
-#             query_chain_id = Id.upper() + ':A'
-#             for chain in query_seqres:
-#                 if chain.id == query_chain_id:
-#                     query_chain = chain.seq
-#                     file.write(str(">" + Id + "\n" + query_chain + "\n"))
-#
-# homologous_PDB(list, query)
 
 def homologous_PDB(list_hom, query):
     """Function that obtains the PDB files of the list of top 10 homologous proteins,
@@ -111,49 +77,6 @@ def homologous_PDB(list_hom, query):
                 pass
     return pdb_data
 
-dic_pdb_data=homologous_PDB(list, query)
-print(dic_pdb_data)
-
-def clustalw(aln_file = "aln_input.fa"):
-    """Function that performs the ClustalW alignment and converts it to fasta
-    format, no input needed"""
-    ## performing the clustalw
-    cmd = ClustalwCommandline("clustalw", infile=aln_file, outfile="aln_output.aln")
-    stdout, stderr = cmd()
-    ## converting it to fasta format
-    align = AlignIO.read("aln_output.aln", "clustal")
-    SeqIO.write(align, "aln_output.fa", "fasta")
-
-clustalw()
-
-# def pdb_bfactor_info(list_hom):
-#     """ Function that returns a dictionary of all the b-factors stored in the
-#     PDBs of the top proteins from the list of the blast results"""
-#
-#     pdb_data = {}
-#
-#     for Id in list_hom:
-#         location = 0
-#         sequence = []
-#         with open(Id + '.pdb') as input_pdb:
-#             for line in input_pdb:
-#                 if line.startswith("ATOM"):
-#                     chain = line[21]
-#                     residue = line[17:20]
-#                     atom = line[13:16]
-#                     bfactor = float(line[61:66])
-#                     if 'A' in chain:
-#                         if 'CA' in atom:
-#                             if line[16] != "B":
-#                                 location += 1
-#                                 residue = three_to_one(residue)
-#                                 sequence.append(residue)
-#                                 pdb_data.setdefault(Id, {}).setdefault(location, {}).setdefault(residue, bfactor)
-#     return(pdb_data)
-#
-# dic_pdb_data= pdb_bfactor_info(list)
-# #print (dic_pdb_data)
-
 def pdb_bfactor_info_normalized(pdb_data_dict):
     """Function that normalises the b-factors of the PDB and returns the
     modified dictionary"""
@@ -173,8 +96,15 @@ def pdb_bfactor_info_normalized(pdb_data_dict):
                     pdb_data_dict[id][pos][aa] = abs((bfactor - mn) / std)
     return (pdb_data_dict)
 
-dic_pdb_data = pdb_bfactor_info_normalized(dic_pdb_data)
-##print(dic_pdb_data)
+def clustalw(aln_file = "aln_input.fa"):
+    """Function that performs the ClustalW alignment and converts it to fasta
+    format, no input needed"""
+    ## performing the clustalw
+    cmd = ClustalwCommandline("clustalw", infile=aln_file, outfile="aln_output.aln")
+    stdout, stderr = cmd()
+    ## converting it to fasta format
+    align = AlignIO.read("aln_output.aln", "clustal")
+    SeqIO.write(align, "aln_output.fa", "fasta")
 
 def alignment_to_dict(alignment_fasta = "aln_output.fa"):
     """Function that returns a dictionary with the postions of each aminoacid or
@@ -187,9 +117,6 @@ def alignment_to_dict(alignment_fasta = "aln_output.fa"):
                 msa_dict.setdefault(line.id, {}).setdefault(position, AA)
                 position += 1
     return (msa_dict)
-
-dic_msa = alignment_to_dict()
-#print (dic_msa)
 
 def b_factor_dictionary(aln_dict, PDB_dict, query):
     """Function that returns the B-factor dictionary taking into account the
@@ -213,7 +140,6 @@ def b_factor_dictionary(aln_dict, PDB_dict, query):
                         elif re.search("[A-Z]", pos2[aln_counter]):
                             pdb_loc = pdb_loc + 1
                         aln_counter += 1
-    # print(b_factor_dict)
     ## calculating the means for each position
     with open ("predicted_bfactors.txt", "w") as file:
         i = 0
@@ -228,10 +154,8 @@ def b_factor_dictionary(aln_dict, PDB_dict, query):
                         file.write(str(str(i)+"\t"+aa+"\t"+str(b_factor)+"\t"+"F"+"\n"))
             else:
                 b_factor = flexcalc.flexcalc(query[1], i)
-                if query[1][i-1] in dictionaries.rigid:
+                if query[1][i] in dictionaries.rigid:
                     file.write(str(str(i)+"\t"+query[1][i]+"\t"+str(b_factor)+"\t"+"R"+"\n"))
                 else:
                     file.write(str(str(i)+"\t"+query[1][i]+"\t"+str(b_factor)+"\t"+"F"+"\n"))
             i += 1
-
-b_factor_dictionary(dic_msa, dic_pdb_data, query)
