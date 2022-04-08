@@ -118,7 +118,7 @@ def alignment_to_dict(alignment_fasta = "aln_output.fa"):
                 position += 1
     return (msa_dict)
 
-def b_factor_dictionary(aln_dict, PDB_dict, query):
+def b_factor_dictionary(aln_dict, PDB_dict, query, output_file):
     """Function that returns the B-factor dictionary taking into account the
     alignment results and doing the mean of the values of the possible B-factors
     from the homologues"""
@@ -141,7 +141,7 @@ def b_factor_dictionary(aln_dict, PDB_dict, query):
                             pdb_loc = pdb_loc + 1
                         aln_counter += 1
     ## calculating the means for each position
-    with open ("predicted_bfactors.txt", "w") as file:
+    with open (output_file, "w") as file:
         i = 0
         file.write(str("Position"+"\t"+"Aminoacid"+"\t"+"B-factor"+"\t"+"Type"+"\n"))
         while (i < len(query[1])):
