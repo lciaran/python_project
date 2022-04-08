@@ -1,22 +1,17 @@
 import sys
 import argparse
+import os
 from nice_code import *
 
 if __name__ == "__main__":
 
-    parser = argparse.ArgumentParser(description="Given DNA FASTA file(s), calculate the sequence length and molecular weight of their corresponding translated proteins. Outputs the output sorted by sequence length")
+    parser = argparse.ArgumentParser(description="Given the query protein FASTA file or Uniprot ID, calculate the protein sequence flexibility (B-factors). The output is a file containing the sequence aminoacids B-factors and two plots representing the protein's flexibility")
 
     parser.add_argument( 	'-i', '--input',
 				dest= "infile",
 				action= "store",
 				default= "./",
-				help="Input protein FASTA file")
-
-    parser.add_argument( 	'-q', '--query',
-				dest= "uniprotID",
-				action= "store",
-				default= None,
-				help="Input protein ID from Uniprot")
+				help="Input protein FASTA file or ID from Uniprot")
 
     parser.add_argument(	'-o', '--output',
 				dest="outfile",
@@ -34,24 +29,19 @@ if __name__ == "__main__":
 
 
 	# CAPTURING THE INPUT FILE(s)
-    input_file = options.infile
+    input_fasta = options.infile
 
-    input_ID = options.uniprotID
-
-    if input_file == '' and input_ID == '':
-        sys.stderr.write("No input provided. Please, try again.")
-    elif input_file != '' and input_ID == '':
-        input_fasta = input_file
-        query = query_info_from_fasta(input_fasta)
-    elif input_file == '' and input_ID != '':
-        uniprot_to_pdb(input_ID)
-        input_fasta = input_ID + ".fasta"
-        query = query_info_from_fasta(input_fasta)
-    elif input_file != '' and input_ID != '':
-        sys.stderr.write("Only one input type allowed. Please, try again.")
-    
-    print(query[1])
-    #check(query[1])
+    #input_ID = options.uniprotID
+    if len(sys.argv) == 1:
+        sys.stderr.write("No input provided. Please, try again. \n")
+        exit()
+    else:
+        if os.path.isfile(input_fasta):
+            query = query_info_from_fasta(input_fasta)
+        else:
+            uniprot_to_pdb(input_fasta)
+            input_fasta = input_fasta + ".fasta"
+            query = query_info_from_fasta(input_fasta)
 
     if options.verbose:
 	    sys.stderr.write("Query %s has been created. \n BLASTP is being carried out. \n" %query[0])
