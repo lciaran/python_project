@@ -14,7 +14,7 @@ def uniprot_to_pdb(query_ID):
     """ Funtion that obtains the fasta file from Uniprot using the Uniprot ID"""
     try:
         url_link = 'https://www.uniprot.org/uniprot/' + query_ID + '.fasta'
-        wget.download(url_link)
+        wget.download(url_link, './Downloads')
     except:
         sys.stderr.write("Please enter a valid Uniprot ID")
         exit()
@@ -30,11 +30,11 @@ def top_10_blast_idlist(fasta_file):
     """Function that performs the Blast and returns a list of the IDs from the
     top 10 results of the Blast"""
     ## performing the Blast
-    cline = NcbiblastpCommandline(query=fasta_file, db="DB_uniprot/uniprot_sprot.fasta", evalue=0.00001, out= "blast_results.out", outfmt = "6 sseqid evalue")
+    cline = NcbiblastpCommandline(query=fasta_file, db="DB_uniprot/uniprot_sprot.fasta", evalue=0.00001, out= "./Alignment/blast_results.out", outfmt = "6 sseqid evalue")
     stdt, stdr= cline()
 
     ## getting the 10 best porteins IDs
-    with open ("blast_results.out", "r") as file:
+    with open ("./Alignment/blast_results.out", "r") as file:
         list_IDs = []
         for line in file:
             ID = line[3:9]
@@ -48,15 +48,15 @@ def homologous_PDB(list_hom, query):
     extracts the sequence and introduces them into the alignment file as well
     as the query (query has to be a tupple (id,seq))"""
     pdb_data = {}
-    with open ("aln_input.fa", "w") as file:
+    with open ("./Alignment/aln_input.fa", "w") as file:
         file.write(str(">" + query[0] + "\n" + query[1] +"\n"))
         for Id in list_hom:
             try:
                 url_pdb = "https://alphafold.ebi.ac.uk/files/AF-" + Id + "-F1-model_v2.pdb"
-                wget.download(url_pdb)
+                wget.download(url_pdb, './Downloads')
             except:
                 continue
-            PDB_file_path = "AF-" + Id + "-F1-model_v2.pdb"
+            PDB_file_path = "./Downloads/AF-" + Id + "-F1-model_v2.pdb"
             sequence = ''
             try:
                 with open (PDB_file_path, "r") as pdb_file:
@@ -65,7 +65,7 @@ def homologous_PDB(list_hom, query):
                             chain = line[21]
                             residue = line[17:20]
                             atom = line[13:16]
-                            location = int(line[23:26])
+                            location = int(line[23:27])
                             bfactor = float(line[61:66])
                             if 'A' in chain:
                                 if 'CA' in atom:
@@ -96,17 +96,17 @@ def pdb_bfactor_info_normalized(pdb_data_dict):
                     pdb_data_dict[id][pos][aa] = abs((bfactor - mn) / std)
     return (pdb_data_dict)
 
-def clustalw(aln_file = "aln_input.fa"):
+def clustalw(aln_file = "./Alignment/aln_input.fa"):
     """Function that performs the ClustalW alignment and converts it to fasta
     format, no input needed"""
     ## performing the clustalw
-    cmd = ClustalwCommandline("clustalw", infile=aln_file, outfile="aln_output.aln")
+    cmd = ClustalwCommandline("clustalw", infile=aln_file, outfile="./Alignment/aln_output.aln")
     stdout, stderr = cmd()
     ## converting it to fasta format
-    align = AlignIO.read("aln_output.aln", "clustal")
-    SeqIO.write(align, "aln_output.fa", "fasta")
+    align = AlignIO.read("./Alignment/aln_output.aln", "clustal")
+    SeqIO.write(align, "./Alignment/aln_output.fa", "fasta")
 
-def alignment_to_dict(alignment_fasta = "aln_output.fa"):
+def alignment_to_dict(alignment_fasta = "./Alignment/aln_output.fa"):
     """Function that returns a dictionary with the postions of each aminoacid or
     gap of each protein in the fasta alignment file"""
     msa_dict = {}

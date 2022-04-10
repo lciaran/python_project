@@ -20,6 +20,3 @@ def flexcalc(protein, r):
             elif protein[r + 1] in dictionaries.flex:
                 b_query = dictionaries.b_factor_ff[query]
     return b_query
-
-protein = 'XGATQSFQSVGDLTPAEKDLIRSTWDQLMTHRTGFVADVFIRIFHNDPTAQRKFPQMAGLSPAELRTSRQMHAHAIRVSALMTTYIDEMDTEVLPELLATLTRTHDKNHVGKKNYDLFGKVLMEAIKAELGVGFTKQVHDAWAKTFAIVQGVLITKHAS'
-print(flexcalc(protein, 1))

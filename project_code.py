@@ -17,13 +17,13 @@ if __name__ == "__main__":
     parser.add_argument(	'-o', '--output',
 				dest="outfile",
 				action="store",
-				default= "./predicted_bfactors.txt",
+				default= "./Results/predicted_bfactors.txt",
 				help="Ouput file. If not defined, the file will be named 'predicted_bfactors.txt'.")
 
     parser.add_argument(	'-f', '--figure',
 				dest="outfigure",
 				action="store",
-				default= "./flexibility_plots.png",
+				default= "./Results/flexibility_plots.png",
 				help="Flexibility plots file. If not defined, the file will be named 'flexibility_plots.png'.")
 
     parser.add_argument(	'-v', '--verbose',
@@ -34,6 +34,10 @@ if __name__ == "__main__":
 
     options = parser.parse_args()
 
+    # CREATING DIRECTORIES
+    os.makedirs('./Downloads', exist_ok=True)
+    os.makedirs('./Alignment', exist_ok=True)
+    os.makedirs('./Results', exist_ok=True)
 
 	# CAPTURING THE INPUT
     input_fasta = options.infile
@@ -46,7 +50,7 @@ if __name__ == "__main__":
             query = query_info_from_fasta(input_fasta)
         else:
             uniprot_to_pdb(input_fasta)
-            input_fasta = input_fasta + ".fasta"
+            input_fasta = "./Downloads/" + input_fasta + ".fasta"
             query = query_info_from_fasta(input_fasta)
 
     if options.verbose:
