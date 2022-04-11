@@ -1,8 +1,8 @@
 import sys
-import argparse
 import os
-from nice_code import *
-from graphical_representations import *
+import argparse
+from protFLEXpred_functions import *
+from protFLEXpred_graphical_representations import *
 
 if __name__ == "__main__":
 
@@ -55,8 +55,12 @@ if __name__ == "__main__":
             input_fasta = "./Downloads/" + input_fasta + ".fasta"
             query = query_info_from_fasta(input_fasta)
 
-    if options.verbose:
-	    sys.stderr.write("Query %s has been created. \n BLASTP is being carried out. \n" %query[0])
+    try:
+        if options.verbose:
+            sys.stderr.write("Query %s has been created. \n BLASTP is being carried out. \n" %query[0])
+    except TypeError:
+        sys.stderr.write("Please enter a file in fasta format.\n")
+        exit()
 
 	# READING THE FASTA FILE, PERFORMING BLASTP AND GATHERING THE CLOSEST HOMOLOGOUS
     list_top10 = top_10_blast_idlist(input_fasta)
@@ -69,7 +73,7 @@ if __name__ == "__main__":
         with open (outfile_file, "w") as file:
             file.write(str("Position"+"\t"+"Aminoacid"+"\t"+"B-factor"+"\t"+"Type"+"\n"))
             for p in query[1]:
-                b_factor = flexcalc.flexcalc(query[1], p)
+                b_factor = flexcalc(query[1], p)
                 if query[1][p] in dictionaries.rigid:
                     file.write(str(str(p)+"\t"+query[1][p]+"\t"+str(b_factor)+"\t"+"R"+"\n"))
                 else:

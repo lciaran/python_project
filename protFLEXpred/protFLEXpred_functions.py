@@ -1,15 +1,15 @@
+import sys
+import re
 import wget
 from Bio import SeqIO
-import sys
+from Bio import AlignIO
 from Bio.Blast.Applications import NcbiblastpCommandline
 from Bio.Align.Applications import ClustalwCommandline
-from Bio import AlignIO
+from Bio.SeqUtils.ProtParam import ProteinAnalysis
 from Bio.PDB.Polypeptide import three_to_one
-import flexcalc
 from statistics import mean, stdev
 import dictionaries
-import re
-from Bio.SeqUtils.ProtParam import ProteinAnalysis
+
 
 def uniprot_to_pdb(query_ID):
     """ Funtion that obtains the fasta file from Uniprot using the Uniprot ID"""
@@ -17,15 +17,15 @@ def uniprot_to_pdb(query_ID):
         url_link = 'https://www.uniprot.org/uniprot/' + query_ID + '.fasta'
         wget.download(url_link, './Downloads')
     except:
-        sys.stderr.write("Please enter a valid Uniprot ID")
+        sys.stderr.write("Please enter a valid Uniprot ID.")
         exit()
 
 def query_info_from_fasta(fasta_file):
- """ Function that returns the query information, ID and sequence,
- from fasta file"""
- with open(fasta_file) as handle:
-     for record in SeqIO.parse(handle, "fasta"):
-         return (record.id, str(record.seq))
+    """ Function that returns the query information, ID and sequence,
+    from fasta file"""
+    with open(fasta_file) as handle:
+        for record in SeqIO.parse(handle, "fasta"):
+            return (record.id, str(record.seq))
 
 def top_10_blast_idlist(fasta_file):
     """Function that performs the Blast and returns a list of the IDs from the
@@ -50,7 +50,11 @@ def homologous_PDB(list_hom, query):
     as the query (query has to be a tupple (id,seq))"""
     pdb_data = {}
     with open ("./Alignment/aln_input.fa", "w") as file:
-        file.write(str(">" + query[0] + "\n" + query[1] +"\n"))
+        try:
+            file.write(str(">" + query[0] + "\n" + query[1] +"\n"))
+        except TypeError:
+            sys.stderr.write("Please enter a file in fasta format.\n")
+            exit()
         for Id in list_hom:
             try:
                 url_pdb = "https://alphafold.ebi.ac.uk/files/AF-" + Id + "-F1-model_v2.pdb"
@@ -119,6 +123,27 @@ def alignment_to_dict(alignment_fasta = "./Alignment/aln_output.fa"):
                 position += 1
     return (msa_dict)
 
+def flexcalc(protein, r):
+    '''Function that calculates the residues b-factors according to their neighbors'''             
+    b_query =  None
+    query = protein[r]
+    if r == 0:
+        b_query = dictionaries.b_factor[query]
+    elif r == len(protein) - 1:
+        b_query = dictionaries.b_factor[query]
+    else:
+        if protein[r - 1] in dictionaries.rigid:
+            if protein[r + 1] in dictionaries.rigid:
+                b_query = dictionaries.b_factor_rr[query]
+            elif protein[r + 1] in dictionaries.flex:
+                b_query = dictionaries.b_factor_rf[query]
+        elif protein[r - 1] in dictionaries.flex:
+            if protein[r + 1] in dictionaries.rigid:
+                b_query = dictionaries.b_factor_rf[query]
+            elif protein[r + 1] in dictionaries.flex:
+                b_query = dictionaries.b_factor_ff[query]
+    return b_query
+
 def b_factor_dictionary(aln_dict, PDB_dict, query, output_file):
     """Function that returns the B-factor dictionary taking into account the
     alignment results and doing the mean of the values of the possible B-factors
@@ -154,7 +179,7 @@ def b_factor_dictionary(aln_dict, PDB_dict, query, output_file):
                     else:
                         file.write(str(str(i)+"\t"+aa+"\t"+str(b_factor)+"\t"+"F"+"\n"))
             else:
-                b_factor = flexcalc.flexcalc(query[1], i)
+                b_factor = flexcalc(query[1], i)
                 if query[1][i] in dictionaries.rigid:
                     file.write(str(str(i)+"\t"+query[1][i]+"\t"+str(b_factor)+"\t"+"R"+"\n"))
                 else:
