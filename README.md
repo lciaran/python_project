@@ -1,6 +1,6 @@
 <center>
-# protFLEXpred
- 
+protFLEXpred
+============ 
 Laura Ciaran Alfano, Neus Pou Amengual
 MSc in Bioinformatics for Health Sciences
 SBI - PYT project 2022
