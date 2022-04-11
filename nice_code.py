@@ -9,6 +9,7 @@ import flexcalc
 from statistics import mean, stdev
 import dictionaries
 import re
+from Bio.SeqUtils.ProtParam import ProteinAnalysis
 
 def uniprot_to_pdb(query_ID):
     """ Funtion that obtains the fasta file from Uniprot using the Uniprot ID"""
@@ -65,7 +66,7 @@ def homologous_PDB(list_hom, query):
                             chain = line[21]
                             residue = line[17:20]
                             atom = line[13:16]
-                            location = int(line[23:27])
+                            location = int(line[22:27])
                             bfactor = float(line[61:66])
                             if 'A' in chain:
                                 if 'CA' in atom:
@@ -159,3 +160,15 @@ def b_factor_dictionary(aln_dict, PDB_dict, query, output_file):
                 else:
                     file.write(str(str(i)+"\t"+query[1][i]+"\t"+str(b_factor)+"\t"+"F"+"\n"))
             i += 1
+
+def flex_bioP(sequence, flexibility_file = "./Alignment/flexibility_bioP.txt"):
+    '''Function that returns a file with the b-factor of each position. It uses the flexibility
+    function provided by biopython library.'''
+    analysed_seq = ProteinAnalysis(sequence)
+    flexibility = analysed_seq.flexibility()
+    with open(flexibility_file, "w") as flexi_file:
+        flexi_file.write("Position" + "\t" + "B-factor" + "\n")
+        p = 0
+        for i in flexibility: 
+            flexi_file.write(str(p) + "\t" + str(round(i, 4)) + "\n")
+            p += 1

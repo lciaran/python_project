@@ -39,8 +39,10 @@ if __name__ == "__main__":
     os.makedirs('./Alignment', exist_ok=True)
     os.makedirs('./Results', exist_ok=True)
 
-	# CAPTURING THE INPUT
+	# CAPTURING THE INPUT, THE OUTPUT AND THE FIGURE
     input_fasta = options.infile
+    outfile_file = options.outfile
+    figure = options.outfigure
 
     if len(sys.argv) == 1:
         sys.stderr.write("No input provided. Please, try again. \n")
@@ -58,6 +60,26 @@ if __name__ == "__main__":
 
 	# READING THE FASTA FILE, PERFORMING BLASTP AND GATHERING THE CLOSEST HOMOLOGOUS
     list_top10 = top_10_blast_idlist(input_fasta)
+
+    if len(list_top10) == 0:
+        #ALTERNATIVE TO A PROTEIN WITHOUT HOMOLOGOUS
+        if options.verbose:
+            sys.stderr.write("%d homologous proteins have been found. \n Getting B-factors according to their position. \n " %len(list_top10))
+        p = 0
+        with open (outfile_file, "w") as file:
+            file.write(str("Position"+"\t"+"Aminoacid"+"\t"+"B-factor"+"\t"+"Type"+"\n"))
+            for p in query[1]:
+                b_factor = flexcalc.flexcalc(query[1], p)
+                if query[1][p] in dictionaries.rigid:
+                    file.write(str(str(p)+"\t"+query[1][p]+"\t"+str(b_factor)+"\t"+"R"+"\n"))
+                else:
+                    file.write(str(str(p)+"\t"+query[1][p]+"\t"+str(b_factor)+"\t"+"F"+"\n"))
+                p += 1
+        flex_bioP(query[1])
+        flexibility_plots(outfile_file, figure)
+        if options.verbose:
+            sys.stderr.write("Program finished. Results stored in %s \n" %outfile_file)
+        exit()
 
     if options.verbose:
 	    sys.stderr.write("%d homologous proteins have been found. \n Getting B-factors from the homologous proteins PDB files. \n" %len(list_top10))
@@ -77,14 +99,14 @@ if __name__ == "__main__":
         sys.stderr.write("ClustalW finished. \n Obtaining B-factors of each aminoacid in query sequence. \n")
 
     #OBTAINING B-FACTORS OF EACH AMINOACID OF THE QUERY SEQUENCE AND STORING IT INTO THE OUTPUT FILE
-    outfile_file = options.outfile
 
     b_factor_dictionary(dic_msa, dic_pdb_data, query, outfile_file)
+
+    flex_bioP(query[1])
 
     if options.verbose:
 	    sys.stderr.write("Program finished. Results stored in %s \n" %outfile_file)
 
     #OBTAINING THE RESULTS PLOT
-    figure = options.outfigure
 
     flexibility_plots(outfile_file, figure)
