@@ -17,7 +17,7 @@ The package works as follows. Firstly, **BlastP** compares the protein query to 
 
 ## **Initializating program**
 
-Execute `setup.py` by the following command to install all required packages. It is possible that you have to execute it as root.
+Execute `setup.py` with the following command to install all required packages. It may be possible that you have to execute it as root.
 
 ```{.sh}
 python3 setup.py install
@@ -26,13 +26,13 @@ Then, make sure that you have the following scripts `dictionaries.py`, `__init__
 
 ## **Running the program**
 
-Execute `ProtFLEXpreD.py` by the following command to run the program.
+Execute `ProtFLEXpreD.py` with the following command to run the program.
 
 ```{.sh}
 python3 ProtFLEXpreD.py -i XXX
 ```
 
-Where you have to write your **input** `-i` argument replacing `XXX` by the **Uniprot ID** or the **fasta** file of your target. You can also add the following arguments:
+Where you have to write your **input** `-i` argument replacing `XXX` by the **Uniprot ID** or the **fasta** file of your ptotein query. You can also add the following arguments:
 
 - `-o` : output file. It is saved as default in `/Results/predicted_bfactors.txt`.
 
@@ -54,6 +54,6 @@ After running the program successfully, you will find three new folders in your 
 
 * `Intermediary` : where you can find **BlastP** results, **ClustalW** alignment files and the predicted flexibility calculated by the *biopython* package.
 
-* `Results` : where you can find a file with the predicted *b-factors* of your query and representative plots of your results.
+* `Results` : where you can find a file with the predicted *b-factors* of your query and representation plots of your results.
 
 If you have any doubt, do not hesitate to contact with us, laura.ciaran01@estudiant.upf.edu and neus.pou01@estudiant.upf.edu.
