@@ -1,8 +1,8 @@
 import sys
 import os
 import argparse
-from protFLEXpred_functions import *
-from protFLEXpred_graphical_representations import *
+from ProtFLEXpreD_functions import *
+from ProtFLEXpreD_graphical_representations import *
 
 if __name__ == "__main__":
 
