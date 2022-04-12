@@ -15,7 +15,7 @@ ProtFLEXpreD is a python package to predict *b-factors* of each protein aminoaci
 
 The package works as follows. Firstly, **BlastP** compares the protein query to the *Uniprot* database to gather its top 10 homologous proteins. Secondly, *b-factors* of the homologues are obtained and normalized from the **Alphafold** PDB files. Thirdly, *Multiple Sequence Alignment* is performed with **ClustalW**. Fourthly, *b-factors* from homologous proteins are assigned to the aligned aminoacids by computing the mean between them, and the *b-factors* obtained [according to their neighbours by computation](https://www.polarmicrobes.org/protein-flexibility-calculation-with-python/) are assigned to the non-aligned aminoacids. Finally, a text file containing the *b-factor* of each aminoacid of the query sequence and three plots are created to represent the flexibility results.
 
-## **Initializating program**
+## **Initializating the program**
 
 Execute `setup.py` with the following command to install all required packages. It may be possible that you have to execute it as root.
 
