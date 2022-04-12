@@ -1,15 +1,17 @@
-from distutils.core import setup
-PACKAGES = []
-REQUIREMENTS = ['sys', 'os', 'argparse', 're', 'wget', 'biopython', 'statistics', 'numpy', 'pandas', 'seaborn',  'matplotlib']
+from setuptools import setup, find_packages
 
-setup(name='protFLEX_prediction',
+REQUIREMENTS = ['argparse', 'wget', 'biopython', 'statistics', 'numpy>=1.18.5', 'pandas', 'seaborn',  'matplotlib']
+
+setup(name='ProtFLEXpreD',
       version='1.0',
-      description='Project that calculates the flexibility of the proteins',
+      description='Program that calculates the flexibility of the proteins',
       author='Laura Ciaran Alfano and Neus Pou Amengual',
       author_email='laura.ciaran01@estudiant.upf.edu and neus.pou01@estudiant.upf.edu',
-      url='',
-      packages = ['protFLEX_prediction'],
-      install_requires= REQUIREMENTS,
-      scripts=['protFLEX', 'protFLEX_functions', 'protFLEX_graphical_representations', 'dictionaries']
+      url='https://github.com/lciaran/python_project',
+      install_requires = REQUIREMENTS,
+      packages = find_packages('ProtFLEXpreD', 'ProtFLEXpreD.DB_uniprot'),
+      package_dir = {"": "ProtFLEXpreD"},
+      include_package_data= True,
+      py_modules = ['ProtFLEXpreD', 'ProtFLEXpreD_functions', 'ProtFLEXpreD_graphical_representations', 'dictionaries'],
+      python_requires='>=3',
       )
-
