@@ -52,7 +52,7 @@ After running the program successfully, you will find three new folders in your 
 
 * `Downloads` : where you can find all downloaded files from **Alphafold** or **Uniprot**.
 
-* `Intermediary` : where you can find **BlastP** results, **ClustalW** alignment files and the predicted flexibility calculated by the *biopython* package.
+* `Intermediary` : where you can find **BlastP** results, **ClustalW** alignment files and the predicted flexibility calculated by the [*biopython* package](https://biopython.org/docs/1.75/api/Bio.SeqUtils.ProtParam.html).
 
 * `Results` : where you can find a file with the predicted *b-factors* of your query and representation plots of your results.
 
