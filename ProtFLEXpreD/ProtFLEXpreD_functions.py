@@ -183,15 +183,15 @@ def b_factor_dictionary(aln_dict, PDB_dict, query, output_file):
                 for aa, list in b_factor_dict[i].items():
                     b_factor= round(sum(list) / len(list), 2)
                     if aa in dictionaries.rigid:
-                        file.write(str(str(i)+"\t"+aa+"\t"+str(b_factor)+"\t"+"R"+"\n"))
+                        file.write(str(str(i)+"\t"+aa+"\t"+str(b_factor)+"\t"+"Rigid"+"\n"))
                     else:
-                        file.write(str(str(i)+"\t"+aa+"\t"+str(b_factor)+"\t"+"F"+"\n"))
+                        file.write(str(str(i)+"\t"+aa+"\t"+str(b_factor)+"\t"+"Flexible"+"\n"))
             else:
                 b_factor = flexcalc(query[1], i)
                 if query[1][i] in dictionaries.rigid:
-                    file.write(str(str(i)+"\t"+query[1][i]+"\t"+str(b_factor)+"\t"+"R"+"\n"))
+                    file.write(str(str(i)+"\t"+query[1][i]+"\t"+str(b_factor)+"\t"+"Rigid"+"\n"))
                 else:
-                    file.write(str(str(i)+"\t"+query[1][i]+"\t"+str(b_factor)+"\t"+"F"+"\n"))
+                    file.write(str(str(i)+"\t"+query[1][i]+"\t"+str(b_factor)+"\t"+"Flexible"+"\n"))
             i += 1
 
 def flex_bioP(sequence, flexibility_file = "./Intermediary/flexibility_bioP.txt"):
