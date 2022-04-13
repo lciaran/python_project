@@ -36,7 +36,7 @@ if __name__ == "__main__":
 
     # CREATING DIRECTORIES
     os.makedirs('./Downloads', exist_ok=True)
-    os.makedirs('./Alignment', exist_ok=True)
+    os.makedirs('./Intermediary', exist_ok=True)
     os.makedirs('./Results', exist_ok=True)
 
 	# CAPTURING THE INPUT, THE OUTPUT AND THE FIGURE

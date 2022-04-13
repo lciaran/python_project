@@ -31,11 +31,11 @@ def top_10_blast_idlist(fasta_file):
     """Function that performs the Blast and returns a list of the IDs from the
     top 10 results of the Blast"""
     ## performing the Blast
-    cline = NcbiblastpCommandline(query=fasta_file, db="DB_pdb/PDB_db", evalue=0.00001, out= "./Alignment/blast_results.out", outfmt = "6 sseqid evalue")
+    cline = NcbiblastpCommandline(query=fasta_file, db="DB_pdb/PDB_db", evalue=0.00001, out= "./Intermediary/blast_results.out", outfmt = "6 sseqid evalue")
     stdt, stdr= cline()
 
     ## getting the 10 best porteins IDs
-    with open ("./Alignment/blast_results.out", "r") as file:
+    with open ("./Intermediary/blast_results.out", "r") as file:
         list_IDs = []
         for line in file:
             ID_1 = line[0:4]
@@ -52,7 +52,7 @@ def homologous_PDB(list_hom, query):
     extracts the sequence and introduces them into the alignment file as well
     as the query (query has to be a tupple (id,seq))"""
     pdb_data = {}
-    with open ("./Alignment/aln_input.fa", "w") as file:
+    with open ("./Intermediary/aln_input.fa", "w") as file:
         try:
             file.write(str(">" + query[0] + "\n" + query[1] +"\n"))
         except TypeError:
@@ -109,17 +109,17 @@ def pdb_bfactor_info_normalized(pdb_data_dict):
                     pdb_data_dict[id][pos][aa] = abs((bfactor - mn) / std)
     return (pdb_data_dict)
 
-def clustalw(aln_file = "./Alignment/aln_input.fa"):
+def clustalw(aln_file = "./Intermediary/aln_input.fa"):
     """Function that performs the ClustalW alignment and converts it to fasta
     format, no input needed"""
     ## performing the clustalw
-    cmd = ClustalwCommandline("clustalw", infile=aln_file, outfile="./Alignment/aln_output.aln")
+    cmd = ClustalwCommandline("clustalw", infile=aln_file, outfile="./Intermediary/aln_output.aln")
     stdout, stderr = cmd()
     ## converting it to fasta format
-    align = AlignIO.read("./Alignment/aln_output.aln", "clustal")
-    SeqIO.write(align, "./Alignment/aln_output.fa", "fasta")
+    align = AlignIO.read("./Intermediary/aln_output.aln", "clustal")
+    SeqIO.write(align, "./Intermediary/aln_output.fa", "fasta")
 
-def alignment_to_dict(alignment_fasta = "./Alignment/aln_output.fa"):
+def alignment_to_dict(alignment_fasta = "./Intermediary/aln_output.fa"):
     """Function that returns a dictionary with the postions of each aminoacid or
     gap of each protein in the fasta alignment file"""
     msa_dict = {}
@@ -194,7 +194,7 @@ def b_factor_dictionary(aln_dict, PDB_dict, query, output_file):
                     file.write(str(str(i)+"\t"+query[1][i]+"\t"+str(b_factor)+"\t"+"F"+"\n"))
             i += 1
 
-def flex_bioP(sequence, flexibility_file = "./Alignment/flexibility_bioP.txt"):
+def flex_bioP(sequence, flexibility_file = "./Intermediary/flexibility_bioP.txt"):
     '''Function that returns a file with the b-factor of each position. It uses the flexibility
     function provided by biopython library.'''
     analysed_seq = ProteinAnalysis(sequence)

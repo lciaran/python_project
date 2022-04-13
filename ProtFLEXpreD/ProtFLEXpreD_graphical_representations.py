@@ -3,7 +3,7 @@ import pandas as pd
 import seaborn as sns
 import matplotlib as plt
 
-def flexibility_plots(predicted_bfactors_file, figure_file, bioP_bfactors_file = "./Alignment/flexibility_bioP.txt"):
+def flexibility_plots(predicted_bfactors_file, figure_file, bioP_bfactors_file = "./Intermediary/flexibility_bioP.txt"):
     '''Function that transforms two text files with Position and B-factors as columns into a dataframe to plot them.
     It obtains three plots that relate B-factors and their positions. Two of them represent the results obtained by the program.
     The other one represents the results obtained using the biopython module.'''
