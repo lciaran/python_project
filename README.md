@@ -11,18 +11,20 @@
 
 ## **Introduction**
 
-ProtFLEXpreD is a python package to predict *b-factors* of each protein aminoacid, which are values used to predict the protein flexibility. 
+ProtFLEXpreD is a python package to predict *b-factors* of each protein aminoacid, which are values used to predict the protein flexibility.
 
-The package works as follows. Firstly, **BlastP** compares the protein query to the *Uniprot* database to gather its top 10 homologous proteins. Secondly, *b-factors* of the homologues are obtained and normalized from the **Alphafold** PDB files. Thirdly, *Multiple Sequence Alignment* is performed with **ClustalW**. Fourthly, *b-factors* from homologous proteins are assigned to the aligned aminoacids by computing the mean between them, and the *b-factors* obtained [according to their neighbours by computation](https://www.polarmicrobes.org/protein-flexibility-calculation-with-python/) are assigned to the non-aligned aminoacids. Finally, a text file containing the *b-factor* of each aminoacid of the query sequence and three plots are created to represent the flexibility results.
+The package works as follows. Firstly, **BlastP** compares the protein query to the *PDB* database to gather its top 10 homologous proteins. Secondly, *b-factors* of the homologues are obtained and normalized from the **PDB** PDB files. Thirdly, *Multiple Sequence Alignment* is performed with **ClustalW**. Fourthly, *b-factors* from homologous proteins are assigned to the aligned aminoacids by computing the mean between them, and the *b-factors* obtained [according to their neighbours by computation](https://www.polarmicrobes.org/protein-flexibility-calculation-with-python/) are assigned to the non-aligned aminoacids. Finally, a text file containing the *b-factor* of each aminoacid of the query sequence and three plots are created to represent the flexibility results.
 
 ## **Initializating the program**
 
-Execute `setup.py` with the following command to install all required packages. It may be possible that you have to execute it as root.
+Execute `setup.py` with the following commands to install all required packages. It may be possible that you have to execute it as root.
 
 ```{.sh}
+python3 setup.py sdist
+python3 setup.py build
 python3 setup.py install
 ```
-Then, make sure that you have the following scripts `dictionaries.py`, `__init__.py`, `ProtFLEXpreD.py`, `ProtFLEXpreD_functions.py`, `ProtFLEXpreD_graphical_representations.py` and the database folder `DB_Uniprot` in your directory.
+Then, make sure that you have the following scripts `dictionaries.py`, `__init__.py`, `ProtFLEXpreD.py`, `ProtFLEXpreD_functions.py`, `ProtFLEXpreD_graphical_representations.py` and the database folder `DB_pdb` in your directory.
 
 ## **Running the program**
 
@@ -50,7 +52,7 @@ python3 ProtFLEXpreD.py -h
 
 After running the program successfully, you will find three new folders in your directory:
 
-* `Downloads` : where you can find all downloaded files from **Alphafold** or **Uniprot**.
+* `Downloads` : where you can find all downloaded files from **PDB** or **Uniprot**.
 
 * `Intermediary` : where you can find **BlastP** results, **ClustalW** alignment files and the predicted flexibility calculated by the [*biopython* package](https://biopython.org/docs/1.75/api/Bio.SeqUtils.ProtParam.html).
 
