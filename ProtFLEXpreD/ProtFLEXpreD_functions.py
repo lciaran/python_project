@@ -31,17 +31,20 @@ def top_10_blast_idlist(fasta_file):
     """Function that performs the Blast and returns a list of the IDs from the
     top 10 results of the Blast"""
     ## performing the Blast
-    cline = NcbiblastpCommandline(query=fasta_file, db="DB_uniprot/uniprot_sprot.fasta", evalue=0.00001, out= "./Alignment/blast_results.out", outfmt = "6 sseqid evalue")
+    cline = NcbiblastpCommandline(query=fasta_file, db="DB_pdb/PDB_db", evalue=0.00001, out= "./Alignment/blast_results.out", outfmt = "6 sseqid evalue")
     stdt, stdr= cline()
 
     ## getting the 10 best porteins IDs
     with open ("./Alignment/blast_results.out", "r") as file:
         list_IDs = []
         for line in file:
-            ID = line[3:9]
-            if len(list_IDs) < 10:
-                if ID not in list_IDs:
-                    list_IDs.append(ID)
+            ID_1 = line[0:4]
+            ID_2 = line[4:8]
+            if len(list_IDs) < 20:
+                if ID_1 not in list_IDs:
+                    list_IDs.append(ID_1)
+                if ID_2 not in list_IDs:
+                    list_IDs.append(ID_2)
     return (list_IDs)
 
 def homologous_PDB(list_hom, query):
@@ -56,12 +59,13 @@ def homologous_PDB(list_hom, query):
             sys.stderr.write("Please enter a file in fasta format.\n")
             exit()
         for Id in list_hom:
+            location = 0
             try:
-                url_pdb = "https://alphafold.ebi.ac.uk/files/AF-" + Id + "-F1-model_v2.pdb"
+                url_pdb = 'https://files.rcsb.org/view/' + Id + '.pdb'
                 wget.download(url_pdb, './Downloads')
             except:
                 continue
-            PDB_file_path = "./Downloads/AF-" + Id + "-F1-model_v2.pdb"
+            PDB_file_path = './Downloads/' + Id + '.pdb'
             sequence = ''
             try:
                 with open (PDB_file_path, "r") as pdb_file:
@@ -70,13 +74,17 @@ def homologous_PDB(list_hom, query):
                             chain = line[21]
                             residue = line[17:20]
                             atom = line[13:16]
-                            location = int(line[22:27])
                             bfactor = float(line[61:66])
-                            if 'A' in chain:
+                            if 'A' or 'a' in chain:
                                 if 'CA' in atom:
-                                    residue = three_to_one(residue)
-                                    sequence = sequence + residue
-                                    pdb_data.setdefault(Id, {}).setdefault(location, {}).setdefault(residue, bfactor)
+                                    if line[16] != "B":
+                                        location += 1
+                                        try:
+                                            residue = three_to_one(residue)
+                                        except KeyError:
+                                            residue = 'X'
+                                        sequence = sequence + residue
+                                        pdb_data.setdefault(Id, {}).setdefault(location, {}).setdefault(residue, bfactor)
                 file.write(str(">" + Id + "\n" + sequence + "\n"))
             except ValueError:
                 pass
