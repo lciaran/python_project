@@ -58,4 +58,26 @@ After running the program successfully, you will find three new folders in your 
 
 * `Results` : where you can find a file with the predicted *b-factors* of your query and representation plots of your results.
 
+## **Examples**
+
+You will find below some examples to better understand how execute the program.
+
+* Executing the program printing the progression log. You will find an uniprot ID as inout. Output and figure arguments are not added.
+
+```{.sh}
+python3 ProtFLEXpreD.py -i P65206 -v
+```
+
+* Executing the program without printing the progression log. You will find a fasta file uniprot ID as input and a text file as output. Figure argument is not added.
+
+```{.sh}
+python3 ProtFLEXpreD.py -i P65206.fasta -o ./Results/P65206.txt
+```
+
+* Executing the program printing the progression log. All possible argument will be added.
+
+```{.sh}
+python3 ProtFLEXpreD.py -i P65206 -o ./Results/P65206.txt -f ./Results/P65206.png -v
+```
+
 If you have any doubt, do not hesitate to contact with us, laura.ciaran01@estudiant.upf.edu and neus.pou01@estudiant.upf.edu.
