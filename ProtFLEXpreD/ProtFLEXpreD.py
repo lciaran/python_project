@@ -38,6 +38,16 @@ if __name__ == "__main__":
     os.makedirs('./Downloads', exist_ok=True)
     os.makedirs('./Intermediary', exist_ok=True)
     os.makedirs('./Results', exist_ok=True)
+    os.makedirs('./DB_pdb', exist_ok=True)
+
+    #CREATING THE PDB DATABASE IF DOES NOT EXIST
+    db_files =["./DB_pdb/PDB.phr", "./DB_pdb/PDB.pin", "./DB_pdb/PDB.psq", "./DB_pdb/pdb_seqres.txt"]
+    for A in db_files:
+        if os.path.exists(A):
+            continue
+        else:
+            sys.stderr.write("Downloading the PDB database.\n")
+            database()
 
 	# CAPTURING THE INPUT, THE OUTPUT AND THE FIGURE
     input_fasta = options.infile

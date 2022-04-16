@@ -1,8 +1,11 @@
 import sys
 import re
 import wget
+import gzip
+import shutil
 from Bio import SeqIO
 from Bio import AlignIO
+from Bio.Blast.Applications import NcbimakeblastdbCommandline
 from Bio.Blast.Applications import NcbiblastpCommandline
 from Bio.Align.Applications import ClustalwCommandline
 from Bio.SeqUtils.ProtParam import ProteinAnalysis
@@ -10,6 +13,13 @@ from Bio.PDB.Polypeptide import three_to_one
 from statistics import mean, stdev
 import dictionaries
 
+def database():
+    wget.download("https://ftp.wwpdb.org/pub/pdb/derived_data/pdb_seqres.txt.gz", './DB_pdb')
+    with gzip.open('./DB_pdb/pdb_seqres.txt.gz', 'rb') as f_in:
+        with open('./DB_pdb/pdb_seqres.txt', 'wb') as f_out:
+            shutil.copyfileobj(f_in, f_out)
+    cline = NcbimakeblastdbCommandline(dbtype="prot", input_file="./DB_pdb/pdb_seqres.txt", out="./DB_pdb/PDB")
+    stdt, stdr= cline()
 
 def uniprot_to_pdb(query_ID):
     """ Funtion that obtains the fasta file from Uniprot using the Uniprot ID"""
@@ -31,7 +41,7 @@ def top_10_blast_idlist(fasta_file):
     """Function that performs the Blast and returns a list of the IDs from the
     top 10 results of the Blast"""
     ## performing the Blast
-    cline = NcbiblastpCommandline(query=fasta_file, db="DB_pdb/PDB_db", evalue=0.00001, out= "./Intermediary/blast_results.out", outfmt = "6 sseqid evalue")
+    cline = NcbiblastpCommandline(query=fasta_file, db="./DB_pdb/PDB", evalue=0.00001, out= "./Intermediary/blast_results.out", outfmt = "6 sseqid evalue")
     stdt, stdr= cline()
 
     ## getting the 10 best porteins IDs
