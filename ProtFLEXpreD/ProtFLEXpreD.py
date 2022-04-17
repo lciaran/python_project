@@ -1,8 +1,8 @@
 import sys
 import os
 import argparse
-from ProtFLEXpreD_functions import *
-from ProtFLEXpreD_graphical_representations import *
+from ProtFLEXpreD.PFD_functions import *
+from ProtFLEXpreD.PFD_representations import *
 
 if __name__ == "__main__":
 
@@ -35,10 +35,7 @@ if __name__ == "__main__":
     options = parser.parse_args()
 
     # CREATING DIRECTORIES
-    os.makedirs('./Downloads', exist_ok=True)
-    os.makedirs('./Intermediary', exist_ok=True)
     os.makedirs('./Results', exist_ok=True)
-    os.makedirs('./DB_pdb', exist_ok=True)
 
     #CREATING THE PDB DATABASE IF DOES NOT EXIST
     db_files =["./DB_pdb/PDB.phr", "./DB_pdb/PDB.pin", "./DB_pdb/PDB.psq", "./DB_pdb/pdb_seqres.txt"]

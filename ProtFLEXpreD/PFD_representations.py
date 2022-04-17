@@ -28,5 +28,3 @@ def flexibility_plots(predicted_bfactors_file, figure_file, bioP_bfactors_file =
     axs[2].tick_params(axis='both', which='major', labelsize=50)
     fig = fig.get_figure()
     fig.savefig(figure_file)
-
-flexibility_plots('./Results/P65206.txt', './Results/P65206.png')

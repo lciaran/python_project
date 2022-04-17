@@ -1,4 +1,5 @@
 import sys
+import os
 import re
 import wget
 import gzip
@@ -11,9 +12,10 @@ from Bio.Align.Applications import ClustalwCommandline
 from Bio.SeqUtils.ProtParam import ProteinAnalysis
 from Bio.PDB.Polypeptide import three_to_one
 from statistics import mean, stdev
-import dictionaries
+from ProtFLEXpreD import dictionaries
 
 def database():
+    os.makedirs('./DB_pdb', exist_ok=True)
     wget.download("https://ftp.wwpdb.org/pub/pdb/derived_data/pdb_seqres.txt.gz", './DB_pdb')
     with gzip.open('./DB_pdb/pdb_seqres.txt.gz', 'rb') as f_in:
         with open('./DB_pdb/pdb_seqres.txt', 'wb') as f_out:
@@ -23,6 +25,7 @@ def database():
 
 def uniprot_to_pdb(query_ID):
     """ Funtion that obtains the fasta file from Uniprot using the Uniprot ID"""
+    os.makedirs('./Downloads', exist_ok=True)
     try:
         url_link = 'https://www.uniprot.org/uniprot/' + query_ID + '.fasta'
         wget.download(url_link, './Downloads')
@@ -40,6 +43,7 @@ def query_info_from_fasta(fasta_file):
 def top_10_blast_idlist(fasta_file):
     """Function that performs the Blast and returns a list of the IDs from the
     top 10 results of the Blast"""
+    os.makedirs('./Intermediary', exist_ok=True)
     ## performing the Blast
     cline = NcbiblastpCommandline(query=fasta_file, db="./DB_pdb/PDB", evalue=0.00001, out= "./Intermediary/blast_results.out", outfmt = "6 sseqid evalue")
     stdt, stdr= cline()
@@ -61,6 +65,8 @@ def homologous_PDB(list_hom, query):
     """Function that obtains the PDB files of the list of top 10 homologous proteins,
     extracts the sequence and introduces them into the alignment file as well
     as the query (query has to be a tupple (id,seq))"""
+    os.makedirs('./Intermediary', exist_ok=True)
+    os.makedirs('./Downloads', exist_ok=True)
     pdb_data = {}
     with open ("./Intermediary/aln_input.fa", "w") as file:
         try:
@@ -122,6 +128,7 @@ def pdb_bfactor_info_normalized(pdb_data_dict):
 def clustalw(aln_file = "./Intermediary/aln_input.fa"):
     """Function that performs the ClustalW alignment and converts it to fasta
     format, no input needed"""
+    os.makedirs('./Intermediary', exist_ok=True)
     ## performing the clustalw
     cmd = ClustalwCommandline("clustalw", infile=aln_file, outfile="./Intermediary/aln_output.aln")
     stdout, stderr = cmd()

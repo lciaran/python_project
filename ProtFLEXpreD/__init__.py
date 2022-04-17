@@ -1,1 +1,1 @@
-__all__ = ['ProtFLEXpreD', 'ProtFLEXpreD_functions', 'ProtFLEXpreD_graphical_representations', 'dictionaries']
+__all__ = ['ProtFLEXpreD', 'PFD_functions', 'PFD_representations', 'dictionaries']
