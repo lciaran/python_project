@@ -11,13 +11,13 @@
 
 ## **Introduction**
 
-ProtFLEXpreD is a python package to predict *b-factors* of each protein aminoacid, which are values used to predict the protein flexibility.
+ProtFLEXpreD is a python package to predict *B-factors* of each protein aminoacid, values used to predict the protein flexibility.
 
-The package works as follows. Firstly, if you do not have the PDB database in your computer, it will be downloaded in `DB_pdb` directory. If you have it, please check that your directory is called `DB_pdb` and your files are called `PDB.phr`, `PDB.psq` and `PDB.pin`. Secondly, **BlastP** compares the protein query to the *PDB* database to gather its top 10 homologous proteins. Thirdly, *b-factors* of the homologues are obtained and normalized from the **PDB** PDB files. Fourthly, *Multiple Sequence Alignment* is performed with **ClustalW**. Fifthly, *b-factors* from homologous proteins are assigned to the aligned aminoacids by computing the mean between them, and the *b-factors* obtained [according to their neighbours by computation](https://www.polarmicrobes.org/protein-flexibility-calculation-with-python/) are assigned to the non-aligned aminoacids. Finally, a text file containing the *b-factor* of each aminoacid of the query sequence and three plots are created to represent the flexibility results.
+The package works as follows. Firstly, if you do not have the PDB database in your computer, it will be downloaded in the `DB_pdb` directory. If you have it, please check that your directory is called `DB_pdb` and your files are called `PDB.phr`, `PDB.psq` and `PDB.pin`. Secondly, **BlastP** compares the protein query to the *PDB* database to gather its top 10 homologous proteins. Thirdly, the *B-factors* of the homologues are obtained and normalized from the **PDB** PDB files. Fourthly, *Multiple Sequence Alignment* is performed with **ClustalW**. Fifthly, the *B-factors* from homologous proteins are assigned to the aligned aminoacids by computing the mean between them, and the *B-factors* obtained [according to their neighbours by computation](https://www.polarmicrobes.org/protein-flexibility-calculation-with-python/) are assigned to the non-aligned aminoacids. Finally, a text file containing the *B-factor* of each aminoacid of the query sequence and three plots are created to represent the flexibility results.
 
 ## **Initializating the program**
 
-Download the `ProtFLEXpreD-1.0.tar.gz` compressed file and execute the following command to install all required packages. Make sure that you are in the correct directory. It may be possible that you have to execute it as root.
+Download the `ProtFLEXpreD-1.0.tar.gz` compressed file and execute the following command to install all required packages. Make sure that you are in the  directory which contains this file. It may be possible that you have to execute it as root.
 
 ```{.sh}
 pip3 install ProtFLEXpreD-1.0.tar.gz
@@ -60,7 +60,7 @@ After running the program successfully, you will find three new folders in your 
 
 You will find below some examples to better understand how execute the program.
 
-* Executing the program printing the progression log. You will find an uniprot ID as inout. Output and figure arguments are not added.
+* Executing the program printing the progression log. You will find an uniprot ID as input. Output and figure arguments are not added.
 
 ```{.sh}
 python3 -m ProtFLEXpreD.ProtFLEXpreD -i P65206 -v
@@ -72,10 +72,10 @@ python3 -m ProtFLEXpreD.ProtFLEXpreD -i P65206 -v
 python3 -m ProtFLEXpreD.ProtFLEXpreD -i P65206.fasta -o ./Results/P65206.txt
 ```
 
-* Executing the program printing the progression log. All possible argument will be added.
+* Executing the program printing the progression log. All possible argument are added.
 
 ```{.sh}
 python3 -m ProtFLEXpreD.ProtFLEXpreD -i P65206 -o ./Results/P65206.txt -f ./Results/P65206.png -v
 ```
 
-If you have any doubt, do not hesitate to contact with us, laura.ciaran01@estudiant.upf.edu and neus.pou01@estudiant.upf.edu.
+If you have any doubt, do not hesitate to contact us, laura.ciaran01@estudiant.upf.edu and neus.pou01@estudiant.upf.edu.
