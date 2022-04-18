@@ -43,7 +43,7 @@ Where you have to write your **input** `-i` argument replacing `XXX` by the **Un
 If you want to know more, write the following command-line.
 
 ```{.sh}
-python3 ProtFLEXpreD.ProtFLEXpreD -h
+python3 -m ProtFLEXpreD.ProtFLEXpreD -h
 ```
 
 ## **ProtFLEXpreD Results**
@@ -63,19 +63,19 @@ You will find below some examples to better understand how execute the program.
 * Executing the program printing the progression log. You will find an uniprot ID as inout. Output and figure arguments are not added.
 
 ```{.sh}
-python3 ProtFLEXpreD.ProtFLEXpreD -i P65206 -v
+python3 -m ProtFLEXpreD.ProtFLEXpreD -i P65206 -v
 ```
 
 * Executing the program without printing the progression log. You will find a fasta file uniprot ID as input and a text file as output. Figure argument is not added.
 
 ```{.sh}
-python3 ProtFLEXpreD.ProtFLEXpreD -i P65206.fasta -o ./Results/P65206.txt
+python3 -m ProtFLEXpreD.ProtFLEXpreD -i P65206.fasta -o ./Results/P65206.txt
 ```
 
 * Executing the program printing the progression log. All possible argument will be added.
 
 ```{.sh}
-python3 ProtFLEXpreD.ProtFLEXpreD -i P65206 -o ./Results/P65206.txt -f ./Results/P65206.png -v
+python3 -m ProtFLEXpreD.ProtFLEXpreD -i P65206 -o ./Results/P65206.txt -f ./Results/P65206.png -v
 ```
 
 If you have any doubt, do not hesitate to contact with us, laura.ciaran01@estudiant.upf.edu and neus.pou01@estudiant.upf.edu.

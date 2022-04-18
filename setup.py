@@ -9,7 +9,7 @@ setup(name='ProtFLEXpreD',
       author_email='laura.ciaran01@estudiant.upf.edu and neus.pou01@estudiant.upf.edu',
       url='https://github.com/lciaran/python_project',
       install_requires = REQUIREMENTS,
-      packages = ['ProtFLEXpreD', 'ProtFLEXpreD'],
+      packages = ['ProtFLEXpreD'],
       py_modules = ['ProtFLEXpreD', 'PFD_functions', 'PFD_representations', 'dictionaries'],
       python_requires='>=3.8'
       )
